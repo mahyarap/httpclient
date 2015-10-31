@@ -18,5 +18,21 @@ class CommandLineOptionsTest(unittest.TestCase):
             self.parser.parse_args(['http://localhost']))
 
 
+class HttpRequstTest(unittest.TestCase):
+    def setUp(self):
+        self.url = 'http://localhost/hi.txt'
+        self.request = httpc.HttpRequest(self.url)
+
+    def tearDown(self):
+        pass
+
+    def test_can_create_http_request(self):
+        self.request.method = 'GET'
+        self.request.header = ''
+        self.request.body = ''
+        response = self.request.send()
+        self.assertEqual(response.text.strip(), 'Hi there!')
+
+
 if __name__ == '__main__':
     unittest.main()
