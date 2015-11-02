@@ -20,18 +20,18 @@ class CommandLineOptionsTest(unittest.TestCase):
 
 class HttpRequstTest(unittest.TestCase):
     def setUp(self):
-        self.url = 'http://localhost/hi.txt'
+        self.url = 'http://localhost'
         self.request = httpc.HttpRequest(self.url)
 
     def tearDown(self):
         pass
 
-    def test_can_create_http_request(self):
-        self.request.method = 'GET'
+    def test_can_send_http_request(self):
+        self.request.method = 'OPTIONS'
         self.request.header = ''
         self.request.body = ''
         response = self.request.send()
-        self.assertEqual(response.text.strip(), 'Hi there!')
+        self.assertEqual(response.status, '200')
 
 
 if __name__ == '__main__':
