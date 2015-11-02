@@ -174,10 +174,14 @@ def parse_cmd_options(args):
     return parser.parse_args(args)
 
 
-def main():
-    args = parse_cmd_options(sys.argv[1:])
-    # print('Hello')
+def main(argv):
+    args = parse_cmd_options(argv[1:])
+    if args.url:
+        request = HttpRequest(args.url)
+        response = request.send()
+        print(response.status)
 
+    return 0
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main(sys.argv))
