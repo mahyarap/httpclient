@@ -120,3 +120,11 @@ class HttpResponse(object):
         for line in headers.split('\r\n'):
             k, v = line.split(':', maxsplit=1)
             self.__headers[k] = v
+
+    def __str__(self):
+        headers = ''
+        for k, v in self.headers.items():
+            headers += '{0}: {1}\n'.format(k, v)
+
+        response = self.start_line + '\n\n' + headers
+        return response

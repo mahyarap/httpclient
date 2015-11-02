@@ -15,7 +15,7 @@ def main(argv):
     if args.url:
         request = HttpRequest(args.url)
         response = request.send()
-        print(response.status)
+        print(str(response))
 
     return 0
 
