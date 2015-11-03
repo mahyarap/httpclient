@@ -13,6 +13,10 @@ def parse_cmd_options(args):
     parser.add_argument('-v', '--verbose',
         action='store_true',
         help='be verbose')
+    parser.add_argument('-V', '--version',
+        action='version',
+        version='%(prog)s 0.0.1',
+        help='show version and exit')
     return parser.parse_args(args)
 
 
