@@ -9,7 +9,10 @@ def parse_cmd_options(args):
     parser.add_argument('url', help='URL to send the request to')
     parser.add_argument('-m', '--method',
         default='GET',
-        help='URL to send the request to')
+        help='HTTP request method')
+    parser.add_argument('-v', '--verbose',
+        action='store_true',
+        help='be verbose')
     return parser.parse_args(args)
 
 
@@ -17,6 +20,8 @@ def main(argv):
     args = parse_cmd_options(argv[1:])
     if args.url:
         request = HttpRequest(args.url, args.method)
+        if args.verbose:
+            print(str(request))
         response = request.send()
         print(str(response))
 

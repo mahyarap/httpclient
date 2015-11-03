@@ -21,6 +21,11 @@ class HttpClientTest(unittest.TestCase):
         main(args)
         self.assertIn('200 OK', self.out.getvalue())
 
+    def test_verbose_http_options(self):
+        args = ['httpclient.py', '-vm', 'OPTIONS', 'localhost']
+        main(args)
+        self.assertIn('OPTIONS /', self.out.getvalue())
+        self.assertIn('200 OK', self.out.getvalue())
 
 if __name__ == '__main__':
     unittest.main()
