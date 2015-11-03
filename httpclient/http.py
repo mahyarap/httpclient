@@ -1,11 +1,24 @@
 from httpclient.connection import Connection
 
-class HttpRequest(object):
-    def __init__(self, url, method='GET', headers={}, body=None):
-        self.url = url
-        self.method = method
+class HttpMsg(object):
+    def __init__(self, startln='', headers={}, body=None):
+        self.startln = startln
         self.headers = headers
         self.body = body
+
+    def __str__(self):
+        headers = ''
+        for k, v in self.headers.items():
+            headers += '{0}: {1}\n'.format(k, v)
+
+        msg = self.startln + '\n\n' + headers
+        return msg
+
+class HttpRequest(HttpMsg):
+    def __init__(self, url, method='GET', headers={}, body=None):
+        super().__init__(headers=headers, body=body)
+        self.url = url
+        self.method = method
 
     @staticmethod
     def parse_url(url):
@@ -28,17 +41,6 @@ class HttpRequest(object):
         assert method.upper() in ['GET', 'POST', 'PUT', 'DELELTE', 
             'HEAD', 'TRACE', 'OPTIONS'], 'Invalid request method'
         self.__method = method
-
-    @property
-    def headers(self):
-        return self.__headers
-
-    @headers.setter
-    def headers(self, headers):
-        self.__headers = {}
-        host, resource = HttpRequest.parse_url(self.url)
-        if not ('HOST' in headers or 'host' in headers):
-            self.__headers['HOST'] = host
 
     def build(self):
         host, resource = HttpRequest.parse_url(self.url)
@@ -73,10 +75,10 @@ class HttpRequest(object):
         return http_resp
 
 
-class HttpResponse(object):
+class HttpResponse(HttpMsg):
     def __init__(self, response):
-        self.start_line, self.headers, self.body = \
-            HttpResponse.parse_response(response)
+        startln, headers, body = HttpResponse.parse_response(response)
+        super().__init__(startln, headers, body)
 
     @staticmethod
     def parse_response(response):
@@ -86,45 +88,21 @@ class HttpResponse(object):
             if response[i] == CR and response[i+1] == LF:
                 break
         # Without newline at the end
-        start_line = response[:i]
+        startln = response[:i].decode()
 
         for j, _ in enumerate(response[i+1:], start=i):
             if response[j] == CR and response[j+1] == LF:
                 if response[j+2] == CR and response[j+3] == LF:
                     break
-        headers = response[i+2:j]
+        raw_headers = response[i+2:j].decode()
+        headers = {}
+        for line in raw_headers.split('\r\n'):
+            k, v = line.split(':', maxsplit=1)
+            headers[k] = v.strip()
 
         body = response[j+4:]
-        return start_line, headers, body
-
-    @property
-    def start_line(self):
-        return self.__start_line
-
-    @start_line.setter
-    def start_line(self, start_line):
-        self.__start_line = start_line.decode()
+        return startln, headers, body
 
     @property
     def status(self):
-        return self.start_line.split(' ')[1]
-
-    @property
-    def headers(self):
-        return self.__headers
-
-    @headers.setter
-    def headers(self, headers):
-        self.__headers = {}
-        headers = headers.decode()
-        for line in headers.split('\r\n'):
-            k, v = line.split(':', maxsplit=1)
-            self.__headers[k] = v
-
-    def __str__(self):
-        headers = ''
-        for k, v in self.headers.items():
-            headers += '{0}: {1}\n'.format(k, v)
-
-        response = self.start_line + '\n\n' + headers
-        return response
+        return self.startln.split(' ')[1]
