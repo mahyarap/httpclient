@@ -17,10 +17,15 @@ class HttpClientTest(unittest.TestCase):
         sys.stdout = self.saved_stdout
 
     def test_http_options(self):
-        args = ['httpclient.py', 'localhost']
+        args = ['httpclient.py', '-m', 'OPTIONS', 'localhost']
         main(args)
-        self.assertEqual(self.out.getvalue().strip(), '200')
+        self.assertIn('200 OK', self.out.getvalue())
 
+    def test_verbose_http_options(self):
+        args = ['httpclient.py', '-vm', 'OPTIONS', 'localhost']
+        main(args)
+        self.assertIn('OPTIONS /', self.out.getvalue())
+        self.assertIn('200 OK', self.out.getvalue())
 
 if __name__ == '__main__':
     unittest.main()

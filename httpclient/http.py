@@ -1,10 +1,26 @@
 from httpclient.connection import Connection
 
 class HttpMsg(object):
-    def __init__(self, startln='', headers={}, body=None):
+    def __init__(self, startln='', headers=None, body=None):
         self.startln = startln
         self.headers = headers
         self.body = body
+
+    @property
+    def headers(self):
+        return self.__headers
+
+    @headers.setter
+    def headers(self, headers):
+        if isinstance(headers, str):
+            self.__headers = {}
+            headers = headers.split()
+            for k, v in zip(headers[0::2], headers[1::2]):
+                k = k.strip(' :')
+                v = v.strip()
+                self.__headers[k] = v
+        else:
+            self.__headers = {}
 
     def __str__(self):
         headers = ''
@@ -15,10 +31,12 @@ class HttpMsg(object):
         return msg
 
 class HttpRequest(HttpMsg):
-    def __init__(self, url, method='GET', headers={}, body=None):
-        super().__init__(headers=headers, body=body)
+    def __init__(self, url, method='GET', headers=None, body=None):
         self.url = url
         self.method = method
+        host, resource = HttpRequest.parse_url(url)
+        startln = method + ' ' + resource + ' ' + 'HTTP/1.1'
+        super().__init__(startln, headers, body)
 
     @staticmethod
     def parse_url(url):
