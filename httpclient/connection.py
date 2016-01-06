@@ -1,5 +1,6 @@
 import socket
 
+
 class Connection(object):
     def __init__(self, host, port=80):
         self.host = host
@@ -27,7 +28,7 @@ class Connection(object):
     def establish(self):
         family, type, proto, canonname, sockaddr = \
             socket.getaddrinfo(self.host, self.port, socket.AF_INET, 
-                socket.SOCK_STREAM)[0]
+                               socket.SOCK_STREAM)[0]
         self.socket = socket.socket(family, type, proto)
         self.socket.connect(sockaddr)
 

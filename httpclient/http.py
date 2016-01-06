@@ -1,5 +1,6 @@
 from httpclient.connection import Connection
 
+
 class HttpMsg(object):
     def __init__(self, startln='', headers=None, body=None):
         self.startln = startln
@@ -29,6 +30,7 @@ class HttpMsg(object):
 
         msg = self.startln + '\n\n' + headers
         return msg
+
 
 class HttpRequest(HttpMsg):
     def __init__(self, url, method='GET', headers=None, body=None):
