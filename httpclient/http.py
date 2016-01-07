@@ -29,6 +29,14 @@ class HttpMsg(object):
             k, v = keyval.split(':')
             self.__headers[k.strip()] = v.strip()
 
+    @property
+    def body(self):
+        return str(self.__body, encoding='UTF-8')
+
+    @body.setter
+    def body(self, body):
+        self.__body = body
+
     def __str__(self):
         headers = ''
         for k, v in self.headers.items():
