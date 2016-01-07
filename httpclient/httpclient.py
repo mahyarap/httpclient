@@ -7,6 +7,8 @@ from httpclient.http import HttpRequest
 
 
 def parse_cmd_options(args):
+    """Parse the command line arguments."""
+
     parser = argparse.ArgumentParser()
     parser.add_argument('url', help='URL to send the request to')
     parser.add_argument('-m', '--method',

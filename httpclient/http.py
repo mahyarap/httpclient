@@ -2,6 +2,13 @@ from httpclient.connection import Connection
 
 
 class HttpMsg(object):
+    """
+    A base class for a HTTP message.
+
+    :param startln: An HTTP start line. Must be ASCII.
+    :param headers: A dictionary or a string of HTTP headers. Must be ASCII.
+    :param body: An HTTP body. Can be any formats.
+    """
     def __init__(self, startln='', headers=None, body=None):
         self.startln = startln
         self.headers = headers
@@ -47,6 +54,14 @@ class HttpMsg(object):
 
 
 class HttpRequest(HttpMsg):
+    """
+    A representation of an HTTP request.
+
+    :param url: A URL.
+    :param method: An HTTP verb. Must be ASCII.
+    :param headers: A dictionary or a string of HTTP headers. Must be ASCII.
+    :param body: An HTTP body. Can be any formats.
+    """
     def __init__(self, url, method='GET', headers=None, body=None):
         self.method = method
         host, resource = HttpRequest._parse_url(url)
@@ -78,7 +93,7 @@ class HttpRequest(HttpMsg):
 
     @method.setter
     def method(self, method):
-        assert method.upper() in ('GET', 'POST', 'PUT', 'DELELTE',
+        assert method.upper() in ('GET', 'POST', 'PUT', 'DELETE',
             'HEAD', 'TRACE', 'OPTIONS'), 'Invalid request method'
         self.__method = method
 
@@ -107,6 +122,11 @@ class HttpRequest(HttpMsg):
 
 
 class HttpResponse(HttpMsg):
+    """
+    A representation of an HTTP response.
+
+    :param: An HTTP response.
+    """
     def __init__(self, response):
         startln, headers, body = HttpResponse.parse_response(response)
         self.version, self.status, self.status_msg = startln.split()
