@@ -13,22 +13,28 @@ class HttpMsg(object):
 
     @headers.setter
     def headers(self, headers):
-        if isinstance(headers, str):
+        if headers is None:
             self.__headers = {}
-            headers = headers.split()
-            for k, v in zip(headers[0::2], headers[1::2]):
-                k = k.strip(' :')
-                v = v.strip()
-                self.__headers[k] = v
-        else:
-            self.__headers = {}
+            return
+        elif isinstance(headers, dict):
+            self.__headers = headers
+            return
+
+        try:
+            keyvals = headers.split()
+        except AttributeError:
+            raise
+        self.__headers = {}
+        for keyval in keyvals:
+            k, v = keyval.split(':')
+            self.__headers[k.strip()] = v.strip()
 
     def __str__(self):
         headers = ''
         for k, v in self.headers.items():
             headers += '{0}: {1}\n'.format(k, v)
 
-        msg = self.startln + '\n\n' + headers
+        msg = self.startln + '\n' + headers
         return msg
 
 
