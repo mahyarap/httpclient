@@ -109,6 +109,7 @@ class HttpRequest(HttpMsg):
 class HttpResponse(HttpMsg):
     def __init__(self, response):
         startln, headers, body = HttpResponse.parse_response(response)
+        self.version, self.status, self.status_msg = startln.split()
         super().__init__(startln, headers, body)
 
     @staticmethod
@@ -133,7 +134,3 @@ class HttpResponse(HttpMsg):
 
         body = response[j+4:]
         return startln, headers, body
-
-    @property
-    def status(self):
-        return self.startln.split(' ')[1]
