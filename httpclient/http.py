@@ -53,6 +53,8 @@ class HttpRequest(HttpMsg):
         self.host = host
         self.resource = resource
         startln = method + ' ' + resource + ' ' + 'HTTP/1.1'
+        if headers is None:
+            headers = {'HOST': host}
         super().__init__(startln, headers, body)
 
     @staticmethod
@@ -86,15 +88,13 @@ class HttpRequest(HttpMsg):
                                 'HTTP/1.1',
                                 '\r\n'])
 
-        host = 'HOST: {0}\r\n'.format(self.host)
         headers = ''
         for k, v in self.headers.items():
             headers += '{0}: {1}\r\n'.format(k, v)
         headers += '\r\n'
 
-        request = request_line + host + headers
-        request = bytes(request, 'UTF-8')
-        return request
+        request = request_line + headers
+        return bytes(request, 'UTF-8')
 
     def send(self):
         conn = Connection(self.host)
