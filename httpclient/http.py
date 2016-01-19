@@ -3,11 +3,11 @@ from httpclient.connection import Connection
 
 class HttpMsg(object):
     """
-    A base class for a HTTP message.
+    A base class for an HTTP message.
 
     :param startln: An HTTP start line. Must be ASCII.
     :param headers: A dictionary or a string of HTTP headers. Must be ASCII.
-    :param body: An HTTP body. Can be any formats.
+    :param body: An HTTP body. Can be of any format.
     """
     def __init__(self, startln='', headers=None, body=None):
         self.startln = startln
@@ -60,7 +60,7 @@ class HttpRequest(HttpMsg):
     :param url: A URL.
     :param method: An HTTP verb. Must be ASCII.
     :param headers: A dictionary or a string of HTTP headers. Must be ASCII.
-    :param body: An HTTP body. Can be any formats.
+    :param body: An HTTP body. Can be of any format.
     """
     def __init__(self, url, method='GET', headers=None, body=None):
         self.method = method

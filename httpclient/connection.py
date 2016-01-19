@@ -23,9 +23,10 @@ class Connection(object):
         self.__port = port
 
     def establish(self):
-        family, type, proto, canonname, sockaddr = \
-            socket.getaddrinfo(self.host, self.port, socket.AF_INET, 
-                               socket.SOCK_STREAM)[0]
+        (family, type, proto, canonname,
+            sockaddr) = socket.getaddrinfo(self.host, self.port,
+                                           socket.AF_INET,
+                                           socket.SOCK_STREAM)[0]
         self._socket = socket.socket(family, type, proto)
         self._socket.connect(sockaddr)
 
