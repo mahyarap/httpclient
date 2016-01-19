@@ -1,53 +1,71 @@
 from httpclient.connection import Connection
 
+
 class HttpMsg(object):
-    def __init__(self, startln='', headers=None, body=None):
+    """
+    A base class for an HTTP message.
+
+    :param startln: An HTTP start line. Must be ASCII.
+    :param headers: A dictionary of HTTP headers. Must be ASCII.
+    :param body: An HTTP body. Can be of any format.
+    """
+    def __init__(self, startln='', headers={}, body=None):
         self.startln = startln
         self.headers = headers
         self.body = body
 
     @property
-    def headers(self):
-        return self.__headers
+    def body(self):
+        return str(self.__body, encoding='UTF-8')
 
-    @headers.setter
-    def headers(self, headers):
-        if isinstance(headers, str):
-            self.__headers = {}
-            headers = headers.split()
-            for k, v in zip(headers[0::2], headers[1::2]):
-                k = k.strip(' :')
-                v = v.strip()
-                self.__headers[k] = v
-        else:
-            self.__headers = {}
+    @body.setter
+    def body(self, body):
+        self.__body = body
 
     def __str__(self):
         headers = ''
         for k, v in self.headers.items():
             headers += '{0}: {1}\n'.format(k, v)
 
-        msg = self.startln + '\n\n' + headers
+        msg = self.startln + '\n' + headers
         return msg
 
+
 class HttpRequest(HttpMsg):
-    def __init__(self, url, method='GET', headers=None, body=None):
-        self.url = url
+    """
+    A representation of an HTTP request.
+
+    :param url: A URL.
+    :param method: An HTTP verb. Must be ASCII.
+    :param headers: A dictionary of HTTP headers. Must be ASCII.
+    :param body: An HTTP body. Can be of any format.
+    """
+    def __init__(self, url, method='GET', headers={}, body=None):
         self.method = method
-        host, resource = HttpRequest.parse_url(url)
+        host, resource = HttpRequest._parse_url(url)
+        self.host = host
+        self.resource = resource
         startln = method + ' ' + resource + ' ' + 'HTTP/1.1'
+        for key in headers:
+            if key.lower() == 'host':
+                break
+        else:
+            headers['HOST'] = host
         super().__init__(startln, headers, body)
 
     @staticmethod
-    def parse_url(url):
+    def _parse_url(url):
+        parsed_url = []
         if url.startswith('http://'):
-            url = url[7:].split('/', maxsplit=1)
+            parsed_url = url[7:].split('/', maxsplit=1)
         else:
-            url = url.split('/', maxsplit=1)
-        host = url[0]
+            parsed_url = url.split('/', maxsplit=1)
+
+        host = parsed_url[0]
         resource = '/'
-        if len(url) == 2:
-            resource = '/' + url[1]
+        if len(parsed_url) == 2:
+            resource = '/' + parsed_url[1]
+
         return host, resource
 
     @property
@@ -56,46 +74,43 @@ class HttpRequest(HttpMsg):
 
     @method.setter
     def method(self, method):
-        assert method.upper() in ['GET', 'POST', 'PUT', 'DELELTE', 
-            'HEAD', 'TRACE', 'OPTIONS'], 'Invalid request method'
+        assert method.upper() in ('GET', 'POST', 'PUT', 'DELETE',
+            'HEAD', 'TRACE', 'OPTIONS'), 'Invalid request method'
         self.__method = method
 
     def build(self):
-        host, resource = HttpRequest.parse_url(self.url)
-        request_line = (self.method + 
-            ' ' + resource + 
-            ' ' + 'HTTP/1.1' + 
-            '\r\n')
-
-        host = 'HOST: {0}\r\n'.format(host)
+        request_line = ' '.join([self.method,
+                                self.resource,
+                                'HTTP/1.1',
+                                '\r\n'])
 
         headers = ''
         for k, v in self.headers.items():
             headers += '{0}: {1}\r\n'.format(k, v)
         headers += '\r\n'
 
-        header_section = request_line + host + headers
-
-        # body = bytes(body, 'UTF-8')
-
-        request = bytes(header_section, 'UTF-8')
-        return request
+        request = request_line + headers
+        return bytes(request, 'UTF-8')
 
     def send(self):
-        host, resource = HttpRequest.parse_url(self.url)
-        conn = Connection(host)
+        conn = Connection(self.host)
         conn.establish()
         request = self.build()
         conn.write(request)
         response = conn.read()
         conn.close()
-        http_resp = HttpResponse(response)
-        return http_resp
+        return HttpResponse(response)
 
 
 class HttpResponse(HttpMsg):
+    """
+    A representation of an HTTP response.
+
+    :param: An HTTP response.
+    """
     def __init__(self, response):
         startln, headers, body = HttpResponse.parse_response(response)
+        self.version, self.status, self.status_msg = startln.split()
         super().__init__(startln, headers, body)
 
     @staticmethod
@@ -120,7 +135,3 @@ class HttpResponse(HttpMsg):
 
         body = response[j+4:]
         return startln, headers, body
-
-    @property
-    def status(self):
-        return self.startln.split(' ')[1]
