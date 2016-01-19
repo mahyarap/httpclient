@@ -1,2 +1,2 @@
 # httpclient
-An HTTP clinet written in Python
+An HTTP client written in Python
