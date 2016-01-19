@@ -109,29 +109,23 @@ class HttpResponse(HttpMsg):
     :param: An HTTP response.
     """
     def __init__(self, response):
-        startln, headers, body = HttpResponse.parse_response(response)
+        startln, headers, body = HttpResponse._parse_response(response)
         self.version, self.status, self.status_msg = startln.split()
         super().__init__(startln, headers, body)
 
     @staticmethod
-    def parse_response(response):
+    def _parse_response(response):
         CR = 13
         LF = 10
-        for i, _ in enumerate(response):
-            if response[i] == CR and response[i+1] == LF:
-                break
-        # Without newline at the end
-        startln = response[:i].decode()
+        CRLF = bytes([CR, LF])
 
-        for j, _ in enumerate(response[i+1:], start=i):
-            if response[j] == CR and response[j+1] == LF:
-                if response[j+2] == CR and response[j+3] == LF:
-                    break
-        raw_headers = response[i+2:j].decode()
+        startln = response[:response.find(CRLF)].decode()
+        raw_headers = response[len(startln)+2:response.find(CRLF*2)].decode()
+
         headers = {}
         for line in raw_headers.split('\r\n'):
             k, v = line.split(':', maxsplit=1)
             headers[k] = v.strip()
 
-        body = response[j+4:]
+        body = response[len(startln) + len(raw_headers) + 6:]
         return startln, headers, body
