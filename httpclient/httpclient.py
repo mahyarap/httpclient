@@ -41,7 +41,7 @@ def main(argv):
         if args.verbose:
             print(str(request))
         response = request.send()
-        print(response.body)
+        print(response.body, end='')
 
     return 0
 
