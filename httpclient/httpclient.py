@@ -14,6 +14,10 @@ def parse_cmd_options(args):
     parser.add_argument('-m', '--method',
                         default='GET',
                         help='HTTP request method')
+    parser.add_argument('-H', '--header',
+                        action='append',
+                        default=[],
+                        help='HTTP headers')
     parser.add_argument('-v', '--verbose',
                         action='store_true',
                         help='be verbose')
@@ -27,7 +31,13 @@ def parse_cmd_options(args):
 def main(argv):
     args = parse_cmd_options(argv[1:])
     if args.url:
-        request = HttpRequest(args.url, args.method)
+        headers = {}
+        for header in args.header:
+            key, val = header.split(':', maxsplit=1)
+            headers[key.strip()] = val.strip()
+
+        request = HttpRequest(args.url, method=args.method,
+                              headers=headers)
         if args.verbose:
             print(str(request))
         response = request.send()

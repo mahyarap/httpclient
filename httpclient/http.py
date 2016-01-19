@@ -6,35 +6,13 @@ class HttpMsg(object):
     A base class for an HTTP message.
 
     :param startln: An HTTP start line. Must be ASCII.
-    :param headers: A dictionary or a string of HTTP headers. Must be ASCII.
+    :param headers: A dictionary of HTTP headers. Must be ASCII.
     :param body: An HTTP body. Can be of any format.
     """
-    def __init__(self, startln='', headers=None, body=None):
+    def __init__(self, startln='', headers={}, body=None):
         self.startln = startln
         self.headers = headers
         self.body = body
-
-    @property
-    def headers(self):
-        return self.__headers
-
-    @headers.setter
-    def headers(self, headers):
-        if headers is None:
-            self.__headers = {}
-            return
-        elif isinstance(headers, dict):
-            self.__headers = headers
-            return
-
-        try:
-            keyvals = headers.split()
-        except AttributeError:
-            raise
-        self.__headers = {}
-        for keyval in keyvals:
-            k, v = keyval.split(':')
-            self.__headers[k.strip()] = v.strip()
 
     @property
     def body(self):
@@ -59,17 +37,20 @@ class HttpRequest(HttpMsg):
 
     :param url: A URL.
     :param method: An HTTP verb. Must be ASCII.
-    :param headers: A dictionary or a string of HTTP headers. Must be ASCII.
+    :param headers: A dictionary of HTTP headers. Must be ASCII.
     :param body: An HTTP body. Can be of any format.
     """
-    def __init__(self, url, method='GET', headers=None, body=None):
+    def __init__(self, url, method='GET', headers={}, body=None):
         self.method = method
         host, resource = HttpRequest._parse_url(url)
         self.host = host
         self.resource = resource
         startln = method + ' ' + resource + ' ' + 'HTTP/1.1'
-        if headers is None:
-            headers = {'HOST': host}
+        for key in headers:
+            if key.lower() == 'host':
+                break
+        else:
+            headers['HOST'] = host
         super().__init__(startln, headers, body)
 
     @staticmethod
