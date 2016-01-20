@@ -110,7 +110,8 @@ class HttpResponse(HttpMsg):
     """
     def __init__(self, response):
         startln, headers, body = HttpResponse._parse_response(response)
-        self.version, self.status, self.status_msg = startln.split()
+        (self.version, self.status,
+            self.status_msg) = startln.split(maxsplit=2)
         super().__init__(startln, headers, body)
 
     @staticmethod
