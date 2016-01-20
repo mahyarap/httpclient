@@ -12,4 +12,9 @@ setup(
     license = 'GPLv3',
 
     packages = ['httpclient'],
+    entry_points = {
+        'console_scripts': [
+            'httpclient = httpclient.httpclient:main',
+        ],
+    }
 )
