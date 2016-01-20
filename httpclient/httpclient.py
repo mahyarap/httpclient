@@ -28,8 +28,8 @@ def parse_cmd_options(args):
     return parser.parse_args(args)
 
 
-def main(argv):
-    args = parse_cmd_options(argv[1:])
+def main():
+    args = parse_cmd_options(sys.argv[1:])
     if args.url:
         headers = {}
         for header in args.header:
@@ -47,4 +47,4 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    sys.exit(main())
