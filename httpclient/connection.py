@@ -1,3 +1,4 @@
+import sys
 import socket
 
 
@@ -19,7 +20,8 @@ class Connection(object):
 
     @port.setter
     def port(self, port):
-        assert 0 < port < 2**16, "Invalid port range"
+        if not 0 < port < 2**16:
+            raise ValueError('Invalid port range')
         self.__port = port
 
     def establish(self):

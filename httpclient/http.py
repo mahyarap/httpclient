@@ -1,3 +1,4 @@
+import re
 from httpclient.connection import Connection
 
 
@@ -42,10 +43,11 @@ class HttpRequest(HttpMsg):
     """
     def __init__(self, url, method='GET', headers={}, body=None):
         self.method = method
-        host, resource = HttpRequest._parse_url(url)
+        host, port, resource = HttpRequest._parse_url(url)
         self.host = host
+        self.port = port
         self.resource = resource
-        startln = method + ' ' + resource + ' ' + 'HTTP/1.1'
+        startln = ' '.join([method, self.resource, 'HTTP/1.1'])
         for key in headers:
             if key.lower() == 'host':
                 break
@@ -55,18 +57,26 @@ class HttpRequest(HttpMsg):
 
     @staticmethod
     def _parse_url(url):
-        parsed_url = []
-        if url.startswith('http://'):
-            parsed_url = url[7:].split('/', maxsplit=1)
+        url_pattern = (r'^((?P<scheme>https?)://)?(?P<host>[-.a-z0-9]+)'
+                       r'(:(?P<port>[0-9]+))?(?P<resource>/.*)?$')
+        match = re.search(url_pattern, url)
+        if match:
+            host = match.group('host')
+            if not host:
+                raise ValueError('Bad URL')
+
+            try:
+                port = int(match.group('port'))
+            except TypeError:
+                port = None
+
+            resource = match.group('resource')
+            if not resource:
+                resource = '/'
         else:
-            parsed_url = url.split('/', maxsplit=1)
+            raise ValueError('Bad URL')
 
-        host = parsed_url[0]
-        resource = '/'
-        if len(parsed_url) == 2:
-            resource = '/' + parsed_url[1]
-
-        return host, resource
+        return host, port, resource
 
     @property
     def method(self):
@@ -74,8 +84,9 @@ class HttpRequest(HttpMsg):
 
     @method.setter
     def method(self, method):
-        assert method.upper() in ('GET', 'POST', 'PUT', 'DELETE',
-            'HEAD', 'TRACE', 'OPTIONS'), 'Invalid request method'
+        if not method.upper() in ('GET', 'POST', 'PUT', 'DELETE',
+                                  'HEAD', 'TRACE', 'OPTIONS'):
+            raise ValueError('Invalid request method')
         self.__method = method
 
     def build(self):
@@ -93,7 +104,8 @@ class HttpRequest(HttpMsg):
         return bytes(request, 'UTF-8')
 
     def send(self):
-        conn = Connection(self.host)
+        port = self.port or 80
+        conn = Connection(self.host, port)
         conn.establish()
         request = self.build()
         conn.write(request)
