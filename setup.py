@@ -1,9 +1,10 @@
 from setuptools import setup, find_packages
+from httpclient.httpclient import __version__
 
 
 setup(
     name = 'httpclient',
-    version = '0.1',
+    version = __version__,
     url = 'https://github.com/mahyarap/httpclient',
 
     author = 'Mahyar Abbas Pour',
