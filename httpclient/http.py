@@ -17,7 +17,10 @@ class HttpMsg(object):
 
     @property
     def body(self):
-        return str(self.__body, encoding='UTF-8')
+        if self.__body is not None:
+            return str(self.__body, encoding='UTF-8')
+        else:
+            return None
 
     @body.setter
     def body(self, body):

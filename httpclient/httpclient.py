@@ -41,10 +41,14 @@ def main():
 
         request = HttpRequest(args.url, method=args.method,
                               headers=headers)
+        response = request.send()
         if args.verbose:
             print(str(request))
-        response = request.send()
-        print(response.body, end='')
+            if request.body is not None:
+                print(str(request.body))
+            print(str(response))
+        if response.body is not None:
+            print(response.body, end='')
 
     return 0
 
