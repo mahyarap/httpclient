@@ -6,6 +6,9 @@ import argparse
 from httpclient.http import HttpRequest
 
 
+__version__ = '0.1.0'
+
+
 def parse_cmd_options(args):
     """Parse the command line arguments."""
 
@@ -23,7 +26,7 @@ def parse_cmd_options(args):
                         help='be verbose')
     parser.add_argument('-V', '--version',
                         action='version',
-                        version='%(prog)s 0.0.1',
+                        version='%(prog)s {}'.format(__version__),
                         help='show version and exit')
     return parser.parse_args(args)
 
@@ -38,10 +41,14 @@ def main():
 
         request = HttpRequest(args.url, method=args.method,
                               headers=headers)
+        response = request.send()
         if args.verbose:
             print(str(request))
-        response = request.send()
-        print(response.body, end='')
+            if request.body is not None:
+                print(str(request.body))
+            print(str(response))
+        if response.body is not None:
+            print(response.body, end='')
 
     return 0
 

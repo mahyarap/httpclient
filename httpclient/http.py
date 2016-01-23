@@ -17,7 +17,10 @@ class HttpMsg(object):
 
     @property
     def body(self):
-        return str(self.__body, encoding='UTF-8')
+        if self.__body is not None:
+            return str(self.__body, encoding='UTF-8')
+        else:
+            return None
 
     @body.setter
     def body(self, body):
@@ -47,7 +50,7 @@ class HttpRequest(HttpMsg):
         self.host = host
         self.port = port
         self.resource = resource
-        startln = ' '.join([method, self.resource, 'HTTP/1.1'])
+        startln = ' '.join([self.method, self.resource, 'HTTP/1.1'])
         for key in headers:
             if key.lower() == 'host':
                 break
@@ -87,7 +90,7 @@ class HttpRequest(HttpMsg):
         if not method.upper() in ('GET', 'POST', 'PUT', 'DELETE',
                                   'HEAD', 'TRACE', 'OPTIONS'):
             raise ValueError('Invalid request method')
-        self.__method = method
+        self.__method = method.upper()
 
     def build(self):
         request_line = ' '.join([self.method,
