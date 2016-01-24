@@ -145,3 +145,11 @@ class HttpResponse(HttpMsg):
 
         body = response[len(startln) + len(raw_headers) + 6:]
         return startln, headers, body
+
+    @property
+    def status(self):
+        return self.__status
+
+    @status.setter
+    def status(self, status):
+        self.__status = int(status)
