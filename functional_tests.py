@@ -3,8 +3,14 @@
 import sys
 import io
 import unittest
-import argparse
 from httpclient.httpclient import main
+
+
+def fake_main(args):
+    args.insert(0, 'httpclient')
+    sys.argv = args
+    main()
+
 
 class HttpClientTest(unittest.TestCase):
     def setUp(self):
@@ -16,16 +22,12 @@ class HttpClientTest(unittest.TestCase):
         self.out.close()
         sys.stdout = self.saved_stdout
 
-    def test_http_options(self):
-        args = ['httpclient.py', '-m', 'OPTIONS', 'localhost']
-        main(args)
-        self.assertIn('200 OK', self.out.getvalue())
-
     def test_verbose_http_options(self):
-        args = ['httpclient.py', '-vm', 'OPTIONS', 'localhost']
-        main(args)
+        args = ['-vm', 'OPTIONS', 'localhost']
+        fake_main(args)
         self.assertIn('OPTIONS /', self.out.getvalue())
         self.assertIn('200 OK', self.out.getvalue())
+
 
 if __name__ == '__main__':
     unittest.main()
