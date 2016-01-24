@@ -12,27 +12,32 @@ class HttpRequstTest(unittest.TestCase):
         pass
 
     def test_parse_url(self):
-        host, resource = HttpRequest.parse_url('127.0.0.1')
+        host, port, resource = HttpRequest._parse_url('127.0.0.1')
         self.assertEqual(host, '127.0.0.1')
+        self.assertIs(port, None)
         self.assertEqual(resource, '/')
-        host, resource = HttpRequest.parse_url('http://localhost')
+        host, port, resource = HttpRequest._parse_url('http://localhost')
         self.assertEqual(host, 'localhost')
+        self.assertIs(port, None)
         self.assertEqual(resource, '/')
-        host, resource = HttpRequest.parse_url('http://localhost/foo/bar')
+        host, port, resource = HttpRequest._parse_url('http://localhost/foo/bar')
         self.assertEqual(host, 'localhost')
+        self.assertIs(port, None)
+        self.assertEqual(resource, '/foo/bar')
+        host, port, resource = HttpRequest._parse_url('http://localhost:80/foo/bar')
+        self.assertEqual(host, 'localhost')
+        self.assertEqual(port, 80)
         self.assertEqual(resource, '/foo/bar')
 
     def test_send_http_request_options(self):
-        request = HttpRequest('http://localhost')
-        request.method = 'OPTIONS'
+        request = HttpRequest('http://localhost', method='OPTIONS')
         response = request.send()
-        self.assertEqual(response.status, '200')
+        self.assertEqual(response.status, 200)
 
     def test_send_http_request_get(self):
         request = HttpRequest('http://localhost')
-        request.method = 'GET'
         response = request.send()
-        self.assertEqual(response.status, '200')
+        self.assertEqual(response.status, 200)
         self.assertTrue(response.body)
 
 
